@@ -1,16 +1,16 @@
-unit CircularBuffer;
+п»їunit CircularBuffer;
 
 ////////////////////////////////////////////////////////////////////////////////
 //                                                                            //
-//  Модуль кольцевого буфера.                                                 //
+//  РњРѕРґСѓР»СЊ РєРѕР»СЊС†РµРІРѕРіРѕ Р±СѓС„РµСЂР°.                                                 //
 //                                                                            //
-//  Практически полностью написан нейросетью DeepSeek и вставлен в проект     //
-//  TermiCOM, особо не разбираясь как оно там работает.                      //
+//  РџСЂР°РєС‚РёС‡РµСЃРєРё РїРѕР»РЅРѕСЃС‚СЊСЋ РЅР°РїРёСЃР°РЅ РЅРµР№СЂРѕСЃРµС‚СЊСЋ DeepSeek Рё РІСЃС‚Р°РІР»РµРЅ РІ РїСЂРѕРµРєС‚     //
+//  TermiCOM, РѕСЃРѕР±Рѕ РЅРµ СЂР°Р·Р±РёСЂР°СЏСЃСЊ РєР°Рє РѕРЅРѕ С‚Р°Рј СЂР°Р±РѕС‚Р°РµС‚.                      //
 //                                                                            //
-//  Date:        23-Авг-2025                                                  //
-//  Промпт писал: Асылгарев Сергей, serj.temp@mail.ru, @Serjone123            //
+//  Date:        23-РђРІРі-2025                                                  //
+//  РџСЂРѕРјРїС‚ РїРёСЃР°Р»: РђСЃС‹Р»РіР°СЂРµРІ РЎРµСЂРіРµР№, serj.temp@mail.ru, @Serjone123            //
 //                                                                            //
-//  Copyright:   (c) 2025, Асылгарев Сергей                                   //
+//  Copyright:   (c) 2025, РђСЃС‹Р»РіР°СЂРµРІ РЎРµСЂРіРµР№                                   //
 //                                                                            //
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -88,7 +88,7 @@ begin
   if FBufferSize <> Value then
   begin
     FBufferSize := Value;
-    // Обрезаем поток до нового размера если нужно
+    // РћР±СЂРµР·Р°РµРј РїРѕС‚РѕРє РґРѕ РЅРѕРІРѕРіРѕ СЂР°Р·РјРµСЂР° РµСЃР»Рё РЅСѓР¶РЅРѕ
     if FStream.Size > FBufferSize then
     begin
       FStream.Size := FBufferSize;
@@ -131,7 +131,7 @@ begin
     Exit;
 
 
-  // Преобразуем массив байт в временный массив для удобства
+  // РџСЂРµРѕР±СЂР°Р·СѓРµРј РјР°СЃСЃРёРІ Р±Р°Р№С‚ РІ РІСЂРµРјРµРЅРЅС‹Р№ РјР°СЃСЃРёРІ РґР»СЏ СѓРґРѕР±СЃС‚РІР°
   SetLength(TempBytes, DataLength);
   Move(Data[0], TempBytes[0], DataLength);
 
@@ -139,21 +139,21 @@ begin
 
   if FWritePosition + BytesToWrite <= FBufferSize then
   begin
-    // Запись помещается в конец буфера
+    // Р—Р°РїРёСЃСЊ РїРѕРјРµС‰Р°РµС‚СЃСЏ РІ РєРѕРЅРµС† Р±СѓС„РµСЂР°
     FStream.Position := FWritePosition;
     FStream.Write(TempBytes, BytesToWrite);
   end
   else
   begin
-    // Запись переходит через конец буфера
+    // Р—Р°РїРёСЃСЊ РїРµСЂРµС…РѕРґРёС‚ С‡РµСЂРµР· РєРѕРЅРµС† Р±СѓС„РµСЂР°
     FirstPart := FBufferSize - FWritePosition;
     SecondPart := BytesToWrite - FirstPart;
 
-    // Записываем первую часть в конец
+    // Р—Р°РїРёСЃС‹РІР°РµРј РїРµСЂРІСѓСЋ С‡Р°СЃС‚СЊ РІ РєРѕРЅРµС†
     FStream.Position := FWritePosition;
     FStream.Write(TempBytes[0], FirstPart);
 
-    // Записываем вторую часть в начало
+    // Р—Р°РїРёСЃС‹РІР°РµРј РІС‚РѕСЂСѓСЋ С‡Р°СЃС‚СЊ РІ РЅР°С‡Р°Р»Рѕ
     FStream.Position := 0;
     FStream.Write(TempBytes[FirstPart], SecondPart);
   end;
@@ -181,7 +181,7 @@ begin
   if Count = 0 then
     Exit;
 
-  // Определяем начальную позицию для чтения (самые старые данные)
+  // РћРїСЂРµРґРµР»СЏРµРј РЅР°С‡Р°Р»СЊРЅСѓСЋ РїРѕР·РёС†РёСЋ РґР»СЏ С‡С‚РµРЅРёСЏ (СЃР°РјС‹Рµ СЃС‚Р°СЂС‹Рµ РґР°РЅРЅС‹Рµ)
   StartPos := (FWritePosition - Count + FBufferSize) mod FBufferSize;
   BytesToRead := Min(Length(Data), Count);
 
@@ -189,21 +189,21 @@ begin
 
   if StartPos + BytesToRead <= FBufferSize then
   begin
-    // Чтение из конца буфера
+    // Р§С‚РµРЅРёРµ РёР· РєРѕРЅС†Р° Р±СѓС„РµСЂР°
     FStream.Position := StartPos;
     BytesRead := FStream.Read(TempBytes[0], BytesToRead);
   end
   else
   begin
-    // Чтение переходит через конец буфера
+    // Р§С‚РµРЅРёРµ РїРµСЂРµС…РѕРґРёС‚ С‡РµСЂРµР· РєРѕРЅРµС† Р±СѓС„РµСЂР°
     FirstPart := FBufferSize - StartPos;
     SecondPart := BytesToRead - FirstPart;
 
-    // Читаем первую часть из конца
+    // Р§РёС‚Р°РµРј РїРµСЂРІСѓСЋ С‡Р°СЃС‚СЊ РёР· РєРѕРЅС†Р°
     FStream.Position := StartPos;
     BytesRead := FStream.Read(TempBytes[0], FirstPart);
 
-    // Читаем вторую часть из начала
+    // Р§РёС‚Р°РµРј РІС‚РѕСЂСѓСЋ С‡Р°СЃС‚СЊ РёР· РЅР°С‡Р°Р»Р°
     FStream.Position := 0;
     BytesRead := BytesRead + FStream.Read(TempBytes[FirstPart], SecondPart);
   end;
@@ -339,7 +339,7 @@ begin
   if (Count = 0) or (Length <= 0) then
     Exit('');
 
-  // Корректируем начальную позицию относительно самых старых данных
+  // РљРѕСЂСЂРµРєС‚РёСЂСѓРµРј РЅР°С‡Р°Р»СЊРЅСѓСЋ РїРѕР·РёС†РёСЋ РѕС‚РЅРѕСЃРёС‚РµР»СЊРЅРѕ СЃР°РјС‹С… СЃС‚Р°СЂС‹С… РґР°РЅРЅС‹С…
   ActualStart := ((FWritePosition - Count + FBufferSize) mod FBufferSize + StartPos) mod FBufferSize;
   BytesToRead := Min(Length, Count - StartPos);
 

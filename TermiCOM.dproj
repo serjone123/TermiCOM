@@ -4,7 +4,7 @@
         <ProjectVersion>20.1</ProjectVersion>
         <FrameworkType>FMX</FrameworkType>
         <Base>True</Base>
-        <Config Condition="'$(Config)'==''">Debug</Config>
+        <Config Condition="'$(Config)'==''">Release</Config>
         <Platform Condition="'$(Platform)'==''">Win32</Platform>
         <TargetedPlatforms>32915</TargetedPlatforms>
         <AppType>Application</AppType>
@@ -212,6 +212,7 @@
         <DCCReference Include="ComPort.pas"/>
         <DCCReference Include="CircularBuffer.pas"/>
         <DCCReference Include="Core\Core.JsonSettings.pas"/>
+        <None Include="README.md"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>
@@ -263,6 +264,12 @@
                 <DeployFile LocalName="Bin\TermiCOM.exe" Configuration="Release" Class="ProjectOutput">
                     <Platform Name="Win32">
                         <RemoteName>TermiCOM.exe</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="README.md" Configuration="Release" Class="ProjectFile">
+                    <Platform Name="Win32">
+                        <RemoteDir>.\</RemoteDir>
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>

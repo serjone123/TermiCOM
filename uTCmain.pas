@@ -1,15 +1,15 @@
-unit uTCmain;
+п»їunit uTCmain;
 
 ////////////////////////////////////////////////////////////////////////////////
 //                                                                            //
-//  Программа TermiCOM                                                        //
+//  РџСЂРѕРіСЂР°РјРјР° TermiCOM                                                        //
 //                                                                            //
-//  Description: Предназначена для работы с ком портом                        //
+//  Description: РџСЂРµРґРЅР°Р·РЅР°С‡РµРЅР° РґР»СЏ СЂР°Р±РѕС‚С‹ СЃ РєРѕРј РїРѕСЂС‚РѕРј                        //
 //  Version:     1.0                                                          //
-//  Date:        30-Авг-2025                                                  //
-//  Author:      Асылгарев Сергей, serj.temp@mail.ru, @Serjone123             //
+//  Date:        30-РђРІРі-2025                                                  //
+//  Author:      РђСЃС‹Р»РіР°СЂРµРІ РЎРµСЂРіРµР№, serj.temp@mail.ru, @Serjone123             //
 //                                                                            //
-//  Copyright:   (c) 2025, Асылгарев Сергей                                   //
+//  Copyright:   (c) 2025, РђСЃС‹Р»РіР°СЂРµРІ РЎРµСЂРіРµР№                                   //
 //                                                                            //
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -130,6 +130,7 @@ type
         Shift: TShiftState);
     procedure tmSendCharTimer(Sender: TObject);
     procedure tmUpdateCOMDataTimer(Sender: TObject);
+    procedure nbRepeatTimeChangeTracking(Sender: TObject);
   private
     function selectBaud:DWORD;
     //procedure OnRead(Sender: TObject; ReadBytes: array of Byte);
@@ -220,7 +221,7 @@ begin
     PortName:= cbSelectComPort.Items[cbSelectComPort.ItemIndex]
   else
     begin
-      memo1.Lines.Add('Не выбран порт') ;
+      memo1.Lines.Add('РќРµ РІС‹Р±СЂР°РЅ РїРѕСЂС‚') ;
       exit;
     end;
 
@@ -229,7 +230,7 @@ begin
       //GComPort.Destroy;
 
       FreeAndNil(GComPort) ;
-      btOpenPort.Text:= 'Открыть';
+      btOpenPort.Text:= 'РћС‚РєСЂС‹С‚СЊ';
       exit;
     end;
 
@@ -237,12 +238,12 @@ begin
     GComPort:=TComPort.Create(PortName, selectBaud) ;
     GComPort.OnRead:= OnReadEvent;
     GComPort.OnClose:= OnClose;
-    btOpenPort.Text:= 'Закрыть';
+    btOpenPort.Text:= 'Р—Р°РєСЂС‹С‚СЊ';
   except
     on e: Exception do
       memo1.Lines.Add(e.ToString)
     end;
- lbStatus.Text:= 'Подключен ' + PortName+ ' На скорости '+ selectBaud.ToString;
+ lbStatus.Text:= 'РџРѕРґРєР»СЋС‡РµРЅ ' + PortName+ ' РќР° СЃРєРѕСЂРѕСЃС‚Рё '+ selectBaud.ToString;
  // GComPort.
 
 end;
@@ -323,7 +324,7 @@ end;
 procedure TfmTermiCOM.FormCreate(Sender: TObject);
 var
   i: integer;
-  sComPort: string; //Порт при запуске программы
+  sComPort: string; //РџРѕСЂС‚ РїСЂРё Р·Р°РїСѓСЃРєРµ РїСЂРѕРіСЂР°РјРјС‹
 begin
   TabControl.TabIndex:=0;
   SS:=TStringStream.Create  ;
@@ -350,7 +351,14 @@ begin
         btn.ShowHint:= true ;
       end;
    end;
+
    cbBaud.Text:= Settings.GetValue('Baud', '115200');
+   nbCharToSend.Value:= trunc(Settings.GetValue('CharToSend', 13));
+   nbRepeatTime.Value:= trunc(Settings.GetValue('RepeatTime', 500));
+   cbScroll.IsChecked:= Settings.GetValue('Scroll', true);
+   cbHEX.IsChecked:= Settings.GetValue('HEX', true);
+   cbSendEnt.IsChecked:= Settings.GetValue('SendEnt', true);
+
    sComPort:= Settings.GetValue('ComPort', '');
    if (sComPort<>'') and (cbSelectComPort.Items.IndexOf(sComPort)<>-1)  then
      cbSelectComPort.ItemIndex:= cbSelectComPort.Items.IndexOf(sComPort);
@@ -371,6 +379,12 @@ begin
        Settings.SetValue('M'+i.ToString, lbi.Text);
    end;
    Settings.SetValue('Baud', cbBaud.Text);
+   Settings.SetValue('CharToSend', integer(trunc(nbCharToSend.Value)));
+   Settings.SetValue('RepeatTime', integer(trunc(nbRepeatTime.Value)));
+   Settings.SetValue('Scroll', cbScroll.IsChecked);
+   Settings.SetValue('HEX', cbHEX.IsChecked);
+   Settings.SetValue('SendEnt', cbSendEnt.IsChecked);
+
    Settings.SetValue('ComPort', cbSelectComPort.Text);
 
   Settings.Free ;
@@ -442,10 +456,15 @@ begin
   ceSendStr.GoToTextEnd;
 end;
 
+procedure TfmTermiCOM.nbRepeatTimeChangeTracking(Sender: TObject);
+begin
+  tmSendChar.Interval := trunc(nbRepeatTime.Value);
+end;
+
 procedure TfmTermiCOM.OnClose(APortName: string);
 begin
-  //memo1.Lines.Add(APortName +' порт закрыт') ;
-  lbStatus.Text:= APortName +' порт закрыт'
+  //memo1.Lines.Add(APortName +' РїРѕСЂС‚ Р·Р°РєСЂС‹С‚') ;
+  lbStatus.Text:= APortName +' РїРѕСЂС‚ Р·Р°РєСЂС‹С‚'
 end;
 
 
@@ -467,7 +486,7 @@ begin
     result:=cbBaud.Text.ToInteger;
   except
     on e: Exception do
-      lbStatus.Text:= 'Ошибка выбора скорости порта: '+cbBaud.Text;
+      lbStatus.Text:= 'РћС€РёР±РєР° РІС‹Р±РѕСЂР° СЃРєРѕСЂРѕСЃС‚Рё РїРѕСЂС‚Р°: '+cbBaud.Text;
   end;
 
 end;
@@ -482,8 +501,8 @@ var
   arrBytes: array of Byte;
   i: Integer;
 begin
-//  if GFlagOpen = False then // проверяем, открыт ли порт
-//    OpenPort(strtoint(edtPort.Text)); // если нет, то открываем
+//  if GFlagOpen = False then // РїСЂРѕРІРµСЂСЏРµРј, РѕС‚РєСЂС‹С‚ Р»Рё РїРѕСЂС‚
+//    OpenPort(strtoint(edtPort.Text)); // РµСЃР»Рё РЅРµС‚, С‚Рѕ РѕС‚РєСЂС‹РІР°РµРј
   if assigned(GComPort) then
   begin
     var len:= Length(strWrite);
@@ -509,7 +528,7 @@ end;
 
 procedure TfmTermiCOM.tmSendCharTimer(Sender: TObject);
 begin
-  SendStr(#13);
+  SendStr(chr(trunc(nbCharToSend.Value)));
 end;
 
 procedure TfmTermiCOM.tmUpdateCOMDataTimer(Sender: TObject);

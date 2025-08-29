@@ -481,6 +481,7 @@ object fmTermiCOM: TfmTermiCOM
           Size.Width = 34.000000000000000000
           Size.Height = 18.000000000000000000
           Size.PlatformDefault = False
+          OnChangeTracking = nbRepeatTimeChangeTracking
         end
         object cbScroll: TCheckBox
           Align = Left
